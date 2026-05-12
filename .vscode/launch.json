@@ -1,0 +1,25 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug Native",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build_native/App",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "lldb",
+            "preLaunchTask": "build"
+        },
+        {
+            "name": "Launch Web",
+            "type": "chrome",
+            "request": "launch",
+            "url": "http://localhost:8000/App.html",
+            "preLaunchTask": "serve-web"
+        }
+    ]
+}

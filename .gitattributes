@@ -1,0 +1,5 @@
+third_party/wgpu-native/lib/*.a filter=lfs diff=lfs merge=lfs -text
+third_party/wgpu-native/lib/*.dylib filter=lfs diff=lfs merge=lfs -text
+third_party/wgpu-native/lib/*.lib filter=lfs diff=lfs merge=lfs -text
+third_party/wgpu-native/lib/*.dll filter=lfs diff=lfs merge=lfs -text
+third_party/wgpu-native/lib/*.so filter=lfs diff=lfs merge=lfs -text
