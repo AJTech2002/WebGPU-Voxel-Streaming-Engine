@@ -1,4 +1,5 @@
 #include "webgpu/webgpu.h"
+#include <utility>
 
 class Engine
 {
@@ -8,6 +9,7 @@ public:
     WGPUAdapter adapter;
     WGPUDevice device;
     WGPUQueue queue;
+    WGPUSurface surface;
 
     WGPUInstance initializeInstance();
     void onInit(WGPUSurface surface);
@@ -15,6 +17,8 @@ public:
     void onFinish();
 
 private:
-    void requestAdapter(WGPUSurface surface);
+    void requestAdapter();
+    void configureSurface (WGPUSurface surface);
     void requestDevice();
+    std::pair<WGPUSurfaceTexture, WGPUTextureView> getNextSurfaceTexture();
 };
