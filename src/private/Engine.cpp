@@ -87,31 +87,10 @@ void Engine::onFrame()
   WGPUCommandEncoder encoder =
       wgpuDeviceCreateCommandEncoder(device, &encoderDesc);
 
-  WGPURenderPassDescriptor renderPassDesc = {};
-  renderPassDesc.nextInChain = nullptr;
-  renderPassDesc.colorAttachmentCount = 1;
-
-  WGPURenderPassColorAttachment colorAttachment = {};
-  colorAttachment.view = targetView;
-  colorAttachment.resolveTarget = nullptr;
-  colorAttachment.loadOp = WGPULoadOp_Clear;
-  colorAttachment.storeOp = WGPUStoreOp_Store;
-  colorAttachment.clearValue = {0.0f, 0.5f, 0.5f, 1.0f};
-  colorAttachment.depthSlice = WGPU_DEPTH_SLICE_UNDEFINED;
-
-  renderPassDesc.colorAttachments = &colorAttachment;
-  renderPassDesc.depthStencilAttachment = nullptr;
-  renderPassDesc.timestampWrites = nullptr;
+  this->raymarchedSurface.render(encoder, surface, targetView);
 
   WGPUCommandBufferDescriptor cmdBufferDescriptor = {};
   cmdBufferDescriptor.nextInChain = nullptr;
-
-  WGPURenderPassEncoder renderPass =
-      wgpuCommandEncoderBeginRenderPass(encoder, &renderPassDesc);
-
-  wgpuRenderPassEncoderEnd(renderPass);
-  wgpuRenderPassEncoderRelease(
-      renderPass); // release render pass after it's finished
 
   WGPUCommandBuffer command =
       wgpuCommandEncoderFinish(encoder, &cmdBufferDescriptor);

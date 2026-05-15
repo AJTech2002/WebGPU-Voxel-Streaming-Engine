@@ -1,5 +1,5 @@
-./build
-./build-web
-./main
-./build-native
-./cache
+.cache
+build
+build_native
+build_web
+build-web
