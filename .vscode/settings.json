@@ -5,5 +5,10 @@
     },
     "[c]": {
         "editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd"
+    },
+    "editor.folding": true,
+    "editor.foldingStrategy": "auto",
+    "[cpp]": {
+        "editor.foldingStrategy": "auto"
     }
 }
