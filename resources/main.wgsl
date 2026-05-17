@@ -1,17 +1,33 @@
 @vertex
-fn vs_main(@builtin(vertex_index) in_vertex_index: u32) -> @builtin(position) vec4f {
-    var p = vec2f(0.0, 0.0);
-    if (in_vertex_index == 0u) {
-        p = vec2f(-0.5, -0.5);
-    } else if (in_vertex_index == 1u) {
-        p = vec2f(0.5, -0.5);
-    } else {
-        p = vec2f(0.0, 0.5);
-    }
-    return vec4f(p, 0.0, 1.0);
+fn vs_main(
+    @builtin(vertex_index) vertex_index : u32
+) -> @builtin(position) vec4f {
+
+    var positions = array<vec2f, 6>(
+        vec2f(-1.0, -1.0), // bottom left
+        vec2f( 1.0, -1.0), // bottom right
+        vec2f( 1.0,  1.0), // top right
+
+        vec2f(-1.0, -1.0), // bottom left
+        vec2f( 1.0,  1.0), // top right
+        vec2f(-1.0,  1.0)  // top left
+    );
+
+    return vec4f(positions[vertex_index], 0.0, 1.0);
 }
 
 @fragment
-fn fs_main() -> @location(0) vec4f {
-    return vec4f(0.0, 0.4, 1.0, 1.0);
+fn fs_main(
+    @builtin(position) fragCoord : vec4f
+) -> @location(0) vec4f {
+
+    let resolution = vec2f(1280.0, 720.0);
+    let uv = fragCoord.xy / resolution;
+
+    return vec4f(
+        uv.x,
+        uv.y,
+        0.8,
+        1.0
+    );
 }

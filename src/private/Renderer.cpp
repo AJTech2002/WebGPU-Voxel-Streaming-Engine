@@ -96,7 +96,8 @@ void Renderer::render(WGPUCommandEncoder &encoder, WGPUSurface &surface,
 
     wgpuRenderPassEncoderSetPipeline(renderPass, pipeline);
 
-    wgpuRenderPassEncoderDraw(renderPass, 3, 1, 0, 0);
+    // Quad
+    wgpuRenderPassEncoderDraw(renderPass, 6, 1, 0, 0);
     wgpuRenderPassEncoderEnd(renderPass);
 
     wgpuRenderPassEncoderRelease(
