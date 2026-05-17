@@ -126,14 +126,21 @@ if (EMSCRIPTEN)
     set_target_properties(App PROPERTIES
         SUFFIX ".html"
     )
+
     target_link_options(App PRIVATE
         -sUSE_GLFW=3
         -sASYNCIFY
         --use-port=emdawnwebgpu
-        --preload-file "${CMAKE_CURRENT_SOURCE_DIR}/resources"
+        "--preload-file=${CMAKE_CURRENT_SOURCE_DIR}/resources@resources"
         -sALLOW_MEMORY_GROWTH
         -g
         -O0
-        --source-map-base http://localhost:8000/
+        --source-map-base=http://localhost:8000/
+    )
+else()
+    add_custom_command(TARGET App POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+            ${CMAKE_SOURCE_DIR}/resources
+            $<TARGET_FILE_DIR:App>/resources
     )
 endif()

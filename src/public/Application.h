@@ -3,8 +3,8 @@
 
 class Application
 {
-public:
-    Engine engine;
+  public:
+    Engine &engine = Engine::get();
     GLFWwindow *window;
     void onInit();
     bool isRunning();
