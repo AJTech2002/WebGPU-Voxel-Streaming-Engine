@@ -1,6 +1,4 @@
 #pragma once
-#include "Engine.h"
-#include "RenderContext.h"
 #include <fstream>
 #include <sstream>
 #include <stdexcept>
@@ -13,9 +11,9 @@ class Shader
     std::string source;
     WGPUShaderModule shaderModule;
 
-    Shader(const std::string &filePath)
+    Shader(const std::string &filePath, WGPUDevice device)
     {
-        std::ifstream file(filePath);
+        std::ifstream file("resources/" + filePath);
         if (!file.is_open())
         {
             throw std::runtime_error("Failed to open shader file: " + filePath);
@@ -45,8 +43,7 @@ class Shader
         shaderSource.chain.sType = WGPUSType_ShaderSourceWGSL;
 
         shaderDesc.nextInChain = &shaderSource.chain;
-        shaderModule =
-            wgpuDeviceCreateShaderModule(Engine::get().ctx.device, &shaderDesc);
+        shaderModule = wgpuDeviceCreateShaderModule(device, &shaderDesc);
     }
 
     const std::string &getSource() const { return source; }

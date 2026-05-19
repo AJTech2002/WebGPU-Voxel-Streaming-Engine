@@ -14,13 +14,21 @@ void Renderer::setup()
     WGPURenderPipelineDescriptor pipelineDescriptor =
         WGPU_RENDER_PIPELINE_DESCRIPTOR_INIT;
 
-    Shader shader = Shader("resources/main.wgsl");
+    Shader shader = Shader("main.wgsl", Engine::get().ctx.device);
 
 #ifdef DEBUG
     std::cout << "Shader source:\n" << shader.getSource() << std::endl;
 #endif
 
     setupResources();
+
+    compute.bindings().addStorageTextureBinding(
+        0, this->resources.screenTextureView,
+        WGPUStorageTextureAccess_WriteOnly, WGPUTextureFormat_RGBA8Unorm,
+        WGPUShaderStage_Compute);
+
+    Shader computeShader = Shader("compute.wgsl", Engine::get().ctx.device);
+    compute.create(computeShader);
 
     /* #region Vertex Pipeline */
     pipelineDescriptor.vertex.bufferCount = 0;
@@ -76,36 +84,17 @@ void Renderer::setup()
     pipelineDescriptor.multisample.alphaToCoverageEnabled = false;
 
     /* Bind Group Layout */
-    WGPUBindGroupLayoutEntry texLayoutEntry = WGPU_BIND_GROUP_LAYOUT_ENTRY_INIT;
 
-    texLayoutEntry.binding = 0;
-    texLayoutEntry.visibility = WGPUShaderStage_Fragment;
-    texLayoutEntry.texture.sampleType = WGPUTextureSampleType_Float;
-    texLayoutEntry.texture.viewDimension = WGPUTextureViewDimension_2D;
-    texLayoutEntry.texture.multisampled = false;
-
-    WGPUBindGroupLayoutEntry samplerLayoutEntry =
-        WGPU_BIND_GROUP_LAYOUT_ENTRY_INIT;
-
-    samplerLayoutEntry.binding = 1;
-    samplerLayoutEntry.visibility = WGPUShaderStage_Fragment;
-    samplerLayoutEntry.sampler.type = WGPUSamplerBindingType_Filtering;
-
-    std::array<WGPUBindGroupLayoutEntry, 2> layoutEntries = {
-        texLayoutEntry, samplerLayoutEntry};
-
-    WGPUBindGroupLayoutDescriptor layoutDescriptor =
-        WGPU_BIND_GROUP_LAYOUT_DESCRIPTOR_INIT;
-    layoutDescriptor.entryCount = layoutEntries.size();
-    layoutDescriptor.entries = layoutEntries.data();
-
-    WGPUBindGroupLayout layout = wgpuDeviceCreateBindGroupLayout(
-        Engine::get().ctx.device, &layoutDescriptor);
+    resources.screenBindings = Bindings();
+    resources.screenBindings.addTextureBinding(
+        0, this->resources.screenTextureView);
+    resources.screenBindings.addSamplerBinding(1, this->resources.sampler);
+    WGPUBindGroup &group = resources.screenBindings.create();
 
     WGPUPipelineLayoutDescriptor pipelineLayout =
         WGPU_PIPELINE_LAYOUT_DESCRIPTOR_INIT;
     pipelineLayout.bindGroupLayoutCount = 1;
-    pipelineLayout.bindGroupLayouts = &layout;
+    pipelineLayout.bindGroupLayouts = &resources.screenBindings.layout;
 
     WGPUPipelineLayout pipelineLayoutObj = wgpuDeviceCreatePipelineLayout(
         Engine::get().ctx.device, &pipelineLayout);
@@ -114,28 +103,6 @@ void Renderer::setup()
 
     this->resources.pipeline = wgpuDeviceCreateRenderPipeline(
         Engine::get().ctx.device, &pipelineDescriptor);
-    /* #endregion */
-
-    /* #region Bind Group Creation */
-    WGPUBindGroupEntry texBindGroupEntry = WGPU_BIND_GROUP_ENTRY_INIT;
-    texBindGroupEntry.binding = 0;
-    texBindGroupEntry.textureView = this->resources.screenTextureView;
-
-    WGPUBindGroupEntry samplerBindGroupEntry = WGPU_BIND_GROUP_ENTRY_INIT;
-    samplerBindGroupEntry.binding = 1;
-    samplerBindGroupEntry.sampler = this->resources.sampler;
-
-    std::array<WGPUBindGroupEntry, 2> bindGroupEntries = {
-        texBindGroupEntry, samplerBindGroupEntry};
-
-    WGPUBindGroupDescriptor bindGroupDescriptor =
-        WGPU_BIND_GROUP_DESCRIPTOR_INIT;
-    bindGroupDescriptor.layout = layout;
-    bindGroupDescriptor.entryCount = bindGroupEntries.size();
-    bindGroupDescriptor.entries = bindGroupEntries.data();
-
-    this->resources.bindGroup = wgpuDeviceCreateBindGroup(
-        Engine::get().ctx.device, &bindGroupDescriptor);
     /* #endregion */
 }
 
@@ -146,10 +113,11 @@ void Renderer::setupResources()
     textureDesc.label = {"Compute Texture", strlen("Compute Texture")};
     textureDesc.size.width = 800;
     textureDesc.size.height = 800;
-    textureDesc.usage = WGPUTextureUsage_StorageBinding |
-                        WGPUTextureUsage_CopyDst |
-                        WGPUTextureUsage_TextureBinding;
-    textureDesc.format = WGPUTextureFormat_RGBA16Float;
+    textureDesc.usage =
+        WGPUTextureUsage_StorageBinding | WGPUTextureUsage_CopyDst |
+        WGPUTextureUsage_TextureBinding | WGPUTextureUsage_RenderAttachment;
+    textureDesc.format = WGPUTextureFormat_RGBA8Unorm;
+    textureDesc.dimension = WGPUTextureDimension_2D;
 
     this->resources.screenTexture =
         wgpuDeviceCreateTexture(Engine::get().ctx.device, &textureDesc);
@@ -159,6 +127,7 @@ void Renderer::setupResources()
     WGPUTextureViewDescriptor viewDesc = WGPU_TEXTURE_VIEW_DESCRIPTOR_INIT;
     viewDesc.format = wgpuTextureGetFormat(this->resources.screenTexture);
     viewDesc.dimension = WGPUTextureViewDimension_2D;
+
     viewDesc.baseMipLevel = 0;
     viewDesc.mipLevelCount = 1;
     viewDesc.baseArrayLayer = 0;
@@ -206,14 +175,16 @@ void Renderer::render(WGPUCommandEncoder &encoder, WGPUSurface &surface,
     renderPassDesc.depthStencilAttachment = nullptr;
     renderPassDesc.timestampWrites = nullptr;
 
+    compute.dispatch(100, 100, 1, encoder);
+
     WGPURenderPassEncoder renderPass =
         wgpuCommandEncoderBeginRenderPass(encoder, &renderPassDesc);
 
     wgpuRenderPassEncoderSetPipeline(renderPass, this->resources.pipeline);
 
     // Quad
-    wgpuRenderPassEncoderSetBindGroup(renderPass, 0, this->resources.bindGroup,
-                                      0, nullptr);
+    wgpuRenderPassEncoderSetBindGroup(
+        renderPass, 0, this->resources.screenBindings.bindGroup, 0, nullptr);
     wgpuRenderPassEncoderDraw(renderPass, 6, 1, 0, 0);
     wgpuRenderPassEncoderEnd(renderPass);
 

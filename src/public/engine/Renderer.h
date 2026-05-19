@@ -1,16 +1,17 @@
 #ifndef RENDERER
 #define RENDERER
+#include "Bindings.h"
+#include "Compute.h"
 #include <webgpu/webgpu.h>
 
 struct RenderResources
 {
-    WGPUBindGroup bindGroup;
-    WGPUBindGroupLayout bindGroupLayout;
     WGPUPipelineLayout pipelineLayout;
     WGPURenderPipeline pipeline;
     WGPUTexture screenTexture;
     WGPUSampler sampler;
     WGPUTextureView screenTextureView;
+    Bindings screenBindings;
 };
 
 class Renderer
@@ -24,5 +25,6 @@ class Renderer
 
   private:
     void setupResources();
+    Compute compute;
 };
 #endif
