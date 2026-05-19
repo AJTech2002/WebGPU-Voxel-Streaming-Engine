@@ -16,7 +16,9 @@ void Renderer::setup()
 
     Shader shader = Shader("resources/main.wgsl");
 
+#ifdef DEBUG
     std::cout << "Shader source:\n" << shader.getSource() << std::endl;
+#endif
 
     setupResources();
 

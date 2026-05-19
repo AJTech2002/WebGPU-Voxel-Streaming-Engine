@@ -36,5 +36,5 @@ fn fs_main(
     //     1.0
     // );
 
-    return textureSample(myTexture, mySampler, uv);
+    return vec4f(textureSample(myTexture, mySampler, uv).rg,  0.0, 1.0);
 }

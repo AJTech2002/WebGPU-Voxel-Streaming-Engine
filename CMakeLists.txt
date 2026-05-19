@@ -126,6 +126,14 @@ endif()
 # Emscripten / WASM
 # ------------------------------------------------------------
 if (EMSCRIPTEN)
+    # Glob all resource files so CMake re-links when any of them change
+    file(GLOB_RECURSE RESOURCE_FILES
+        "${CMAKE_CURRENT_SOURCE_DIR}/resources/*"
+    )
+    set_property(TARGET App APPEND PROPERTY LINK_DEPENDS ${RESOURCE_FILES})
+endif()
+
+if (EMSCRIPTEN)
     set_target_properties(App PROPERTIES
         SUFFIX ".html"
     )
