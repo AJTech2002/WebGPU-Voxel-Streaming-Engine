@@ -183,7 +183,10 @@ void Engine::requestDevice()
     deviceDesc.label = {"My Device", strlen("My Device")};
     deviceDesc.defaultQueue.nextInChain = nullptr;
     deviceDesc.requiredFeatureCount = 0;
-    deviceDesc.requiredLimits = nullptr;
+
+    WGPULimits limits = WGPU_LIMITS_INIT;
+    limits.maxSampledTexturesPerShaderStage = 16;
+    deviceDesc.requiredLimits = &limits;
 
     deviceDesc.deviceLostCallbackInfo = {};
     deviceDesc.deviceLostCallbackInfo.callback = nullptr;

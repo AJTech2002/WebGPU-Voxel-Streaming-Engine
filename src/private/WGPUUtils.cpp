@@ -1,5 +1,6 @@
 #include "WGPUUtils.h"
-
+#include <iostream>
+#include <string>
 WGPUAdapter requestAdapterSync(WGPUInstance instance,
                                WGPURequestAdapterOptions const *options)
 {
@@ -118,4 +119,37 @@ WGPUDevice requestDeviceSync(WGPUAdapter adapter,
 #endif
 
     return data.device;
+}
+
+void pollWgpuEvents([[maybe_unused]] WGPUDevice device,
+                    [[maybe_unused]] bool yieldToBrowser,
+                    [[maybe_unused]] bool *ready)
+{
+
+    const auto wait = [&]()
+    {
+#if defined(WEBGPU_BACKEND_DAWN)
+        wgpuDeviceTick(device);
+#elif defined(WEBGPU_BACKEND_WGPU)
+        wgpuDevicePoll(device, false, nullptr);
+#elif defined(WEBGPU_BACKEND_EMSCRIPTEN)
+        if (yieldToWebBrowser)
+        {
+            emscripten_sleep(100);
+        }
+#endif
+    };
+
+    if (ready == nullptr)
+    {
+        wait();
+        return;
+    }
+
+    while (!*ready)
+    {
+        wait();
+    }
+
+    return;
 }

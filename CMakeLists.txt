@@ -39,6 +39,8 @@ else()
     target_include_directories(glfw3webgpu PUBLIC "${WGPU_DIR}/include")
 endif()
 
+
+add_subdirectory(third_party/glm)
 # ------------------------------------------------------------
 # Source files
 # ------------------------------------------------------------
@@ -63,6 +65,7 @@ target_link_libraries(MyLib
     PUBLIC
         webgpu
         glfw
+        glm
 )
 
 if (NOT EMSCRIPTEN)
