@@ -1,6 +1,6 @@
-#include "Engine.h"
-#include "RenderContext.h"
-#include "WGPUUtils.h"
+#include "engine/Engine.h"
+#include "engine/RenderContext.h"
+#include "utils/WGPUUtils.h"
 #include <iostream>
 #include <webgpu/webgpu.h>
 

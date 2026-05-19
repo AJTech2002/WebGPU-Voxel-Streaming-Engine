@@ -1,4 +1,4 @@
-#include "WGPUUtils.h"
+#include "utils/WGPUUtils.h"
 #include <iostream>
 #include <string>
 WGPUAdapter requestAdapterSync(WGPUInstance instance,

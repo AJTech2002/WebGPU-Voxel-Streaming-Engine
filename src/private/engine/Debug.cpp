@@ -1,5 +1,5 @@
-#include "Debug.h"
-#include "Engine.h"
+#include "engine/Debug.h"
+#include "engine/Engine.h"
 #include "glm/packing.hpp"
 #include <glm/glm.hpp>
 #include <vector>

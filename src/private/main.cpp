@@ -1,4 +1,4 @@
-#include "Application.h"
+#include "engine/Application.h"
 
 #ifdef __EMSCRIPTEN__
 #include <emscripten/html5.h>
@@ -17,8 +17,7 @@ int main(int, char **)
             Application &app = *reinterpret_cast<Application *>(userData);
             app.onFrame();
         },
-        (void *)&app,
-        0, true);
+        (void *)&app, 0, true);
 
 #else // __EMSCRIPTEN__
 

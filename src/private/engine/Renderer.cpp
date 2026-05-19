@@ -1,9 +1,9 @@
-#include "Renderer.h"
-#include "Debug.h"
-#include "Engine.h"
-#include "RenderContext.h"
-#include "Shader.h"
-#include "WGPUUtils.h"
+#include "engine/Renderer.h"
+#include "engine/Debug.h"
+#include "engine/Engine.h"
+#include "engine/RenderContext.h"
+#include "engine/Shader.h"
+#include "utils/WGPUUtils.h"
 #include <array>
 #include <iostream>
 #include <string>
