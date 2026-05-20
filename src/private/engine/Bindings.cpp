@@ -81,3 +81,44 @@ void Bindings::addStorageTextureBinding(uint32_t binding,
 
     this->bindGroupEntries.push_back(bindGroupEntry);
 }
+
+void Bindings::addStorageBufferBinding(uint32_t binding, WGPUBuffer buffer,
+                                       WGPUShaderStage visibility)
+{
+    WGPUBindGroupLayoutEntry layoutEntry = WGPU_BIND_GROUP_LAYOUT_ENTRY_INIT;
+    layoutEntry.binding = binding;
+    layoutEntry.visibility = visibility;
+    layoutEntry.buffer.type = WGPUBufferBindingType_Storage;
+
+    this->layoutEntries.push_back(layoutEntry);
+
+    WGPUBindGroupEntry bindGroupEntry = WGPU_BIND_GROUP_ENTRY_INIT;
+    bindGroupEntry.binding = binding;
+    bindGroupEntry.buffer = buffer;
+    bindGroupEntry.offset = 0;
+    bindGroupEntry.size = WGPU_WHOLE_SIZE;
+
+    this->bindGroupEntries.push_back(bindGroupEntry);
+}
+
+void Bindings::addUniformBufferBinding(uint32_t binding, WGPUBuffer buffer,
+                                       WGPUShaderStage visibility)
+{
+    WGPUBindGroupLayoutEntry layoutEntry = WGPU_BIND_GROUP_LAYOUT_ENTRY_INIT;
+    layoutEntry.binding = binding;
+    layoutEntry.visibility = visibility;
+    layoutEntry.buffer.type = WGPUBufferBindingType_Uniform;
+
+    this->layoutEntries.push_back(layoutEntry);
+
+    WGPUBindGroupEntry bindGroupEntry = WGPU_BIND_GROUP_ENTRY_INIT;
+    bindGroupEntry.binding = binding;
+    bindGroupEntry.buffer = buffer;
+    bindGroupEntry.offset = 0;
+    // TODO: Verify that this is correct. WGPU_WHOLE_SIZE is used for storage
+    // buffers, but uniform buffers have a max binding size limit, so maybe this
+    // should be set to the actual size of the buffer?
+    bindGroupEntry.size = WGPU_WHOLE_SIZE;
+
+    this->bindGroupEntries.push_back(bindGroupEntry);
+}

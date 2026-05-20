@@ -17,4 +17,8 @@ class Bindings
                                   WGPUStorageTextureAccess access,
                                   WGPUTextureFormat format,
                                   WGPUShaderStage visibility);
+    void addStorageBufferBinding(uint32_t binding, WGPUBuffer buffer,
+                                 WGPUShaderStage visibility);
+    void addUniformBufferBinding(uint32_t binding, WGPUBuffer buffer,
+                                 WGPUShaderStage visibility);
 };
