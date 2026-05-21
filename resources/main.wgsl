@@ -26,7 +26,7 @@ fn fs_main(
     @builtin(position) fragCoord : vec4f
 ) -> @location(0) vec4f {
 
-    let resolution = vec2f(1280.0, 720.0);
+    let resolution = vec2f(800.0, 800.0);
     let uv = fragCoord.xy / resolution;
 
     // return vec4f(

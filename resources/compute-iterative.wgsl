@@ -28,6 +28,7 @@ struct Hit {
 
 @group(0) @binding(0) var output_texture : texture_storage_2d<rgba8unorm, write>;
 @group(0) @binding(1) var<uniform>        uniforms : Uniform;
+@group(0) @binding(2) var<storage, read>  voxels   : array<Voxel>;
 
 fn make_ray(id: vec2<u32>, dims: vec2<u32>) -> Ray {
     // Pixel center in NDC [-1, 1]
@@ -66,16 +67,10 @@ fn intersect(ray: Ray, voxel: Voxel) -> Hit {
     let t       = select(tmin, tmax, tmin < 0.0); // inside box: use tmax
     let hit_pos = ray.origin + ray.dir * t;
 
-    // Face normal from which axis was largest
-    let local   = hit_pos - voxel.pos;
-    let d       = abs(local) / half;
-    var normal  : vec3<f32>;
-    if (d.x > d.y && d.x > d.z) { normal = vec3<f32>(sign(local.x), 0.0, 0.0); }
-    else if (d.y > d.z)          { normal = vec3<f32>(0.0, sign(local.y), 0.0); }
-    else                         { normal = vec3<f32>(0.0, 0.0, sign(local.z)); }
+
 
     hit.pos    = hit_pos;
-    hit.normal = normal;
+    hit.normal = voxel.normal;
     hit.color  = voxel.color;
     hit.t      = t;
     return hit;
@@ -88,14 +83,17 @@ fn cs_main(@builtin(global_invocation_id) id: vec3<u32>) {
 
     let ray = make_ray(id.xy, dims);
 
-    // Test voxel at world position (0.5, 0.5, -5.5)
-    let voxel = Voxel(
-        vec3<f32>(0.5, 0.5, 0.0), 5.0,
-        vec3<f32>(1.0, 0.0, 0.0), 0.0,
-        vec3<f32>(0.0, 1.0, 0.0), 0.0
-    );
+    var hit : Hit;
+    hit.t = -1.0;
 
-    let hit   = intersect(ray, voxel);
+    for (var i = 0u; i < uniforms.voxelCount; i++) {
+        let h = intersect(ray, voxels[i]);
+        if (h.t > 0.0) {
+            hit = h;
+            // Early exit on first hit (opaque)
+            break;
+        }
+    }
 
     var color : vec3<f32>;
     if (hit.t > 0.0) {

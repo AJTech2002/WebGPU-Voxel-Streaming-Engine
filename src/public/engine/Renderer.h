@@ -14,6 +14,8 @@ struct RenderResources
     Bindings screenBindings;
 };
 
+class Scene;
+
 class Renderer
 {
   public:
@@ -22,9 +24,9 @@ class Renderer
     void render(WGPUCommandEncoder &encoder, WGPUSurface &surface,
                 WGPUTextureView &target);
     void cleanup();
+    void loadScene(Scene *scene);
 
   private:
     void setupResources();
-    Compute compute;
 };
 #endif

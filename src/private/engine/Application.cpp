@@ -1,4 +1,5 @@
 #include "engine/Application.h"
+#include "engine/Scene.h"
 #include <iostream>
 
 #ifndef __EMSCRIPTEN__

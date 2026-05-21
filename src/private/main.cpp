@@ -1,5 +1,5 @@
+#include "app/scenes/VoxelScene.h"
 #include "engine/Application.h"
-
 #ifdef __EMSCRIPTEN__
 #include <emscripten/html5.h>
 #endif
@@ -7,7 +7,9 @@
 int main(int, char **)
 {
     Application app;
+    VoxelScene voxelScene(&app.engine);
     app.onInit();
+    app.engine.loadScene(&voxelScene);
 
 #ifdef __EMSCRIPTEN__
 

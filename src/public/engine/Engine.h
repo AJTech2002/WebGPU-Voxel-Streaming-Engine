@@ -3,8 +3,10 @@
 #include "RenderContext.h"
 #include "Renderer.h"
 #include "webgpu/webgpu.h"
-
 #include <utility>
+
+class Scene;
+
 class Engine
 {
 
@@ -17,6 +19,9 @@ class Engine
 
     Renderer renderer;
     RenderContext ctx;
+    Scene *activeScene;
+
+    void loadScene(Scene *scene);
 
     WGPUInstance initializeInstance();
     void onInit(WGPUSurface surface);

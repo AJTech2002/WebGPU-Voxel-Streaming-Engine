@@ -1,8 +1,11 @@
 #include "engine/Engine.h"
 #include "engine/RenderContext.h"
+#include "engine/Scene.h"
 #include "utils/WGPUUtils.h"
 #include <iostream>
 #include <webgpu/webgpu.h>
+
+bool started = false;
 
 void Engine::onInit(WGPUSurface surface)
 {
@@ -13,6 +16,12 @@ void Engine::onInit(WGPUSurface surface)
 
     configureSurface(surface);
     renderer.setup();
+}
+
+void Engine::loadScene(Scene *scene)
+{
+    this->renderer.loadScene(scene);
+    this->activeScene = scene;
 }
 
 void Engine::configureSurface(WGPUSurface surface)
@@ -79,6 +88,12 @@ std::pair<WGPUSurfaceTexture, WGPUTextureView> Engine::getNextSurfaceTexture()
 
 void Engine::onFrame()
 {
+    if (activeScene == nullptr)
+    {
+        std::cerr << "No active scene, load a scene in!" << std::endl;
+        return;
+    }
+
     auto [surfaceTexture, targetView] = getNextSurfaceTexture();
     if (!targetView)
         return;
@@ -89,6 +104,16 @@ void Engine::onFrame()
     WGPUCommandEncoder encoder =
         wgpuDeviceCreateCommandEncoder(ctx.device, &encoderDesc);
 
+    if (!started)
+    {
+        this->activeScene->start();
+        started = true;
+    }
+    else
+    {
+        float dt = 0.015; // TODO: Calculate DT properly
+        this->activeScene->onPreRender(dt, encoder);
+    }
     this->renderer.render(encoder, ctx.surface, targetView);
 
     WGPUCommandBufferDescriptor cmdBufferDescriptor = {};
@@ -128,6 +153,7 @@ void Engine::onFrame()
 
 void Engine::onFinish()
 {
+    this->activeScene->finish();
     renderer.cleanup();
     wgpuSurfaceUnconfigure(ctx.surface);
     wgpuDeviceRelease(ctx.device);

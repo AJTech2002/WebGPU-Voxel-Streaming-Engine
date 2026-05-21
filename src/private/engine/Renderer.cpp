@@ -1,13 +1,21 @@
-#include "engine/Renderer.h"
+#include "engine/Scene.h"
+#define GLM_FORCE_DEPTH_ZERO_TO_ONE
+#define GLM_FORCE_LEFT_HANDED // WebGPU is left-handed
+
 #include "engine/Debug.h"
 #include "engine/Engine.h"
 #include "engine/RenderContext.h"
+#include "engine/Renderer.h"
 #include "engine/Shader.h"
+
 #include "utils/WGPUUtils.h"
-#include <array>
-#include <iostream>
 #include <string>
 #include <webgpu/webgpu.h>
+
+void Renderer::loadScene(Scene *scene)
+{
+    // TODO: Switch Renderable Objects
+}
 
 void Renderer::setup()
 {
@@ -21,14 +29,6 @@ void Renderer::setup()
 #endif
 
     setupResources();
-
-    compute.bindings().addStorageTextureBinding(
-        0, this->resources.screenTextureView,
-        WGPUStorageTextureAccess_WriteOnly, WGPUTextureFormat_RGBA8Unorm,
-        WGPUShaderStage_Compute);
-
-    Shader computeShader = Shader("compute.wgsl", Engine::get().ctx.device);
-    compute.create(computeShader);
 
     /* #region Vertex Pipeline */
     pipelineDescriptor.vertex.bufferCount = 0;
@@ -174,8 +174,6 @@ void Renderer::render(WGPUCommandEncoder &encoder, WGPUSurface &surface,
     renderPassDesc.colorAttachments = &colorAttachment;
     renderPassDesc.depthStencilAttachment = nullptr;
     renderPassDesc.timestampWrites = nullptr;
-
-    compute.dispatch(100, 100, 1, encoder);
 
     WGPURenderPassEncoder renderPass =
         wgpuCommandEncoderBeginRenderPass(encoder, &renderPassDesc);
