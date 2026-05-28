@@ -83,12 +83,17 @@ void Bindings::addStorageTextureBinding(uint32_t binding,
 }
 
 void Bindings::addStorageBufferBinding(uint32_t binding, WGPUBuffer buffer,
-                                       WGPUShaderStage visibility)
+                                       WGPUShaderStage visibility,
+                                       bool readOnly)
 {
     WGPUBindGroupLayoutEntry layoutEntry = WGPU_BIND_GROUP_LAYOUT_ENTRY_INIT;
     layoutEntry.binding = binding;
     layoutEntry.visibility = visibility;
-    layoutEntry.buffer.type = WGPUBufferBindingType_Storage;
+
+    if (readOnly)
+        layoutEntry.buffer.type = WGPUBufferBindingType_ReadOnlyStorage;
+    else
+        layoutEntry.buffer.type = WGPUBufferBindingType_Storage;
 
     this->layoutEntries.push_back(layoutEntry);
 

@@ -10,6 +10,16 @@ struct alignas(16) Uniform
     float _pad[3];         // 144 — force struct to next 16-byte boundary
 };
 
+struct alignas(16) Voxel
+{
+    float pos[3];
+    float size;
+    float color[3];
+    float _pad0;
+    float normal[3];
+    float _pad1;
+};
+
 class VoxelScene : public Scene
 {
   public:
@@ -19,4 +29,8 @@ class VoxelScene : public Scene
     void onPreRender(float dt, WGPUCommandEncoder &activeEncoder) override;
     void start() override;
     void finish() override;
+
+  protected:
+    void setupUniforms();
+    void setupVoxels();
 };

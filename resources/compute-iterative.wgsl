@@ -29,6 +29,10 @@ struct Hit {
 @group(0) @binding(0) var output_texture : texture_storage_2d<rgba8unorm, write>;
 @group(0) @binding(1) var<uniform>        uniforms : Uniform;
 @group(0) @binding(2) var<storage, read>  voxels   : array<Voxel>;
+fn sphere_normal(p: vec3<f32>, sphere_center: vec3<f32>) -> vec3<f32> {
+    return normalize(p - sphere_center);
+}
+
 
 fn make_ray(id: vec2<u32>, dims: vec2<u32>) -> Ray {
     // Pixel center in NDC [-1, 1]
@@ -86,13 +90,21 @@ fn cs_main(@builtin(global_invocation_id) id: vec3<u32>) {
     var hit : Hit;
     hit.t = -1.0;
 
+    var minT = 1e9;
     for (var i = 0u; i < uniforms.voxelCount; i++) {
         let h = intersect(ray, voxels[i]);
-        if (h.t > 0.0) {
+        // if (h.t > 0.0) {
+        //     hit = h;
+        //     // Early exit on first hit (opaque)
+        //     break;
+        // }
+        if (h.t > 0.0 && h.t < minT) {
             hit = h;
-            // Early exit on first hit (opaque)
-            break;
+            minT = h.t;
         }
+
+        // After getting a hit, override the face normal with the true sphere normal
+
     }
 
     var color : vec3<f32>;
